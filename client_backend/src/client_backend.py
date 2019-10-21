@@ -1,6 +1,8 @@
-from flask import Flask, request
-from mocks.tls_mock import ssl, socket, SERV_TEMP_RESPONSE
 import json
+
+from flask import Flask, request
+
+from mocks.tls_mock import ssl, socket, SERV_TEMP_RESPONSE
 
 SERVER_HOSTNAME = 0xDABBAD00
 CA_PATH = 0xDEADBEEF
@@ -47,4 +49,3 @@ def login():
 
 if __name__ == '__main__':
     app.run()
-
