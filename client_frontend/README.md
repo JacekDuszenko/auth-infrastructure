@@ -1,3 +1,9 @@
+HOW TO RUN:
+1. Write in command line 'sudo ./run-client-frontend.sh'
+2. The script will build the project, build a docker image of recently built project and create and run docker container.
+3. To reach your application open the browser on localhost:4200
+4. If in doubt, contact Arek Bochenek or Marcin Umiński
+
 # Client
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.0.3.
