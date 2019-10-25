@@ -1,5 +1,5 @@
 # Only for connection testing!!!
-
+import json
 import socket
 import ssl
 
@@ -13,4 +13,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sslSock = context.wrap_socket(sock, server_side=False, server_hostname=SERVER_HOSTNAME)
 sslSock.connect((SERVER_HOSTNAME, PORT_NUMBER))
 print("Client started")
+data = json.dumps({"email": "user@domain.com", "password": "password"})
+sslSock.sendall(str.encode(data))
+print(sslSock.recv(1024))
 sslSock.close()
