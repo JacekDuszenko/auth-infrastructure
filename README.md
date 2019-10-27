@@ -10,4 +10,4 @@ https://docs.google.com/document/d/1rgYw4UAOqyTPEQIvoOAwO54TsmYNnpDi7GUv_F_Sxjk/
 ## How to run
 
 # To start all services with front-end client exposed on port 8080 on your host machine run
-*./run-docker.sh*
+* ./run-docker.sh *
