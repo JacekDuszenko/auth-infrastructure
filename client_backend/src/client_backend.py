@@ -6,10 +6,9 @@ from mocks.tls_mock import ssl, socket, SERV_TEMP_RESPONSE
 
 SERVER_HOSTNAME = 0xDABBAD00
 CA_PATH = 0xDEADBEEF
-CLIENT_PORT = 1313
 # need to figure it out
-SERVER_PORT = 2525
-BACKEND_HOST = 8080
+MY_PORT = 1313
+AUTH_SERVICE_PORT=8443
 BUFSIZE = 1024
 
 app = Flask(__name__)
@@ -48,4 +47,4 @@ def login():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=MY_PORT)

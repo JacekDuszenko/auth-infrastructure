@@ -20,7 +20,7 @@ export class UserState {
 
   @Action(UserAction)
   add(ctx: StateContext<UserStateModel>, { email, password }: UserAction) {
-    return this.httpClient.post<{ email, password }>('http://localhost:1313/login', { email: email, password: password }).pipe(
+    return this.httpClient.post<{ email, password }>('http://client_backend:1313/login', { email: email, password: password }).pipe(
       tap(value => {
         console.log('login')
         console.log(value)
