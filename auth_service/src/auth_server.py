@@ -1,19 +1,21 @@
 import socket
 import ssl
-from pathlib import Path
-import os
 import json
 import docker
 import subprocess
 
 from ldap3 import Server, Connection, ALL, Tls, KERBEROS
 
-
-SERVER_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-PORT_NUMBER = 8443
-HOSTNAME = '127.0.0.1'
-CERT_PATH = Path(f"{SERVER_DIRECTORY}/../certificates/51787427__127.0.0.1_.cert")
-KEY_PATH = Path(f"{SERVER_DIRECTORY}/../certificates/51787427__127.0.0.1_.key")
+from threading import Thread
+from config import(
+    SERVER_DIRECTORY,
+    PORT_NUMBER,
+    HOSTNAME,
+    CERT_PATH,
+    KEY_PATH,
+    HEALTH_CHECK_PORT,
+    HEALTH_CHECK_BUFSIZE
+)
 
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -55,6 +57,12 @@ def run_server():
         while True:
             print("Waiting for client connection...")
 
+def listen_client():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
+        sock.bind((HOSTNAME, PORT_NUMBER))
+        sock.listen(5)
+        while True:
+            print("Waiting for client connection...")
             try:
                 clientSocket, address = sock.accept()
                 print("Socket connection has been established!")
@@ -90,5 +98,18 @@ def run_server():
                 print("Socket connection failed! OSError!")
 
 
+def listen_health_check():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('localhost', HEALTH_CHECK_PORT))
+        s.listen(1)
+        c, addr = s.accept()
+        while True:
+            c.recv(HEALTH_CHECK_BUFSIZE)
+            c.send(b'alive')
+
 if __name__ == '__main__':
+    Thread(target=listen_client()).start()
+    Thread(target=listen_health_check()).start()
     run_server()
+
+
