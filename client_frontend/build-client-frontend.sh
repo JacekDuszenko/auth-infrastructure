@@ -1,5 +1,5 @@
 if [ -z "${GITLAB_USERNAME}" ]; then
-    echo "set GITLAB_PASSWORD environment variable"
+    echo "set GITLAB_USERNAME environment variable"
     exit 1
 fi
 
