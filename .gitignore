@@ -2,7 +2,6 @@
 .idea/*
 **/.idea/*
 **/__pycache__/
-.idea/*
 .DS_STORE
 
 /dist/
@@ -46,3 +45,4 @@ yarn-error.log
 
 .notes.md
 baseline.json
+.gitignore
