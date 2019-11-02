@@ -12,7 +12,7 @@ docker login registry.gitlab.com --username $GITLAB_USERNAME --password $GITLAB_
 IMG=registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_backend
 TAG1=1.0.0
 TAG2=latest
-docker build -t $IMG:$TAG1 -t $IMG:$TAG2 .
+docker build --no-cache -t $IMG:$TAG1 -t $IMG:$TAG2 .
 docker push $IMG:$TAG1
 docker push $IMG:$TAG2
 
