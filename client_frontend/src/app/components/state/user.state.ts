@@ -1,8 +1,6 @@
 import { State, Action, StateContext } from '@ngxs/store';
 import { UserAction } from './user.actions';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { tap, catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 export class UserStateModel {
   public errorLogin: boolean
@@ -20,20 +18,31 @@ export class UserState {
 
   @Action(UserAction)
   add(ctx: StateContext<UserStateModel>, { email, password }: UserAction) {
-    return this.httpClient.post<{ email, password }>('http://localhost:1313/login', { email: email, password: password }).pipe(
-      tap(value => {
-        console.log('login')
-        console.log(value)
-        ctx.patchState({
-          errorLogin: false
-        })
-      }),
-      catchError((err: HttpErrorResponse) => {
-        ctx.patchState({
-          errorLogin: true
-        })
-        return of();
-      })
-    )
+    console.log(email, password);
+    this.httpClient.post('login', { email: email, password: password })
+      .subscribe((response) => {
+        try {
+          const resp = response as any;
+          console.log(resp);
+          if (resp.authorisation === true) {
+            this.authorizeUser(ctx);
+          } else {
+            this.invalidateUser(ctx);
+          }
+        } catch (error) {
+          this.invalidateUser(ctx);
+        }
+      });
+  }
+
+  private authorizeUser(ctx: StateContext<UserStateModel>) {
+    ctx.patchState({
+      errorLogin: false
+    });
+  }
+  private invalidateUser(ctx: StateContext<UserStateModel>) {
+    ctx.patchState({
+      errorLogin: true
+    });
   }
 }

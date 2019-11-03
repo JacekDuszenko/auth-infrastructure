@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock
 
 # remove when server will be up
-SERV_TEMP_RESPONSE = b'{"authorisation": "True"}'
+SERV_TEMP_RESPONSE = b'{"authorisation": true}'
 
 class ssl:
     """mock class for better encapsulation"""

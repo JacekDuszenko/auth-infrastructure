@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  auth_service:
+    image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/auth_service:latest
+    expose:
+    - "8443"
+
+  client_backend:
+    image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_backend:latest
+    expose: 
+    - "1313"
+  client_frontend:
+    image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_frontend:latest
+    expose:
+    - "80"
+    ports:
+    - "8080:80"
+    depends_on:
+     - client_backend
