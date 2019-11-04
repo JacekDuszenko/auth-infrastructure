@@ -1,5 +1,14 @@
 version: "3.7"
+
+networks:
+  project-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+
 services:
+
   auth_service:
     image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/auth_service:latest
     expose:
@@ -16,4 +25,25 @@ services:
     ports:
     - "8080:80"
     depends_on:
-     - client_backend
+    - client_backend
+
+
+  ldap-host:
+    image: osixia/openldap:latest
+    networks:
+      project-network:
+    environment:
+      - LDAP_ORGANISATION=${LDAP_ORGANISATION_NAME}
+      - LDAP_DOMAIN=${LDAP_DOMAIN}
+      - LDAP_ADMIN_PASSWORD=${LDAP_PASSWORD}
+
+  ldap-admin:
+    image: osixia/phpldapadmin:latest
+    networks:
+      project-network:
+    ports:
+      - "6080:80"
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap-host
+      - PHPLDAPADMIN_HTTPS=false
+
