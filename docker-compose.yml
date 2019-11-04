@@ -4,16 +4,24 @@ services:
     image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/auth_service:latest
     expose:
     - "8443"
+    networks:
+      - integ-test
 
   client_backend:
     image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_backend:latest
     expose: 
     - "1313"
+    networks:
+      - integ-test
   client_frontend:
     image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_frontend:latest
     expose:
     - "80"
     ports:
     - "8080:80"
+    networks:
+      - integ-test
     depends_on:
-     - client_backend
+      - client_backend
+networks:
+  integ-test:
