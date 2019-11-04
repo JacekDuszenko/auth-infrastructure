@@ -4,6 +4,7 @@
 **/__pycache__/
 .DS_STORE
 
+**/dist
 /dist/
 /bazel-out
 /integration/bazel/bazel-*
@@ -46,3 +47,5 @@ yarn-error.log
 .notes.md
 baseline.json
 .gitignore
+
+venv/
