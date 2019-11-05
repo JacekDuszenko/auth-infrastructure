@@ -13,7 +13,7 @@ fi
 echo "Enter your gitlab password"
 docker login registry.gitlab.com --username $GITLAB_USERNAME
 
-docker image build -t ${INTEG_TEST_APP} integ-test/ #buduje obraz aplikacji integ-test
+docker image build -t ${INTEG_TEST_APP} integration-test/health-check  #buduje obraz aplikacji integ-test
 
 docker run -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
 INTEG_TEST_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${INTEG_TEST_APP} --format="{{.ID}}")  #Znajduje ID kontenera na podstawie nazwy image'a
