@@ -22,4 +22,6 @@ CLIENT_BACKEND_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${CLIENT_BACKEND
 NETWORK_NAME=$(docker inspect "${CLIENT_BACKEND_CONTAINER_ID}" --format='{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}') #pobiera nazwę networka, w którym znajduje się client_backend
 docker network connect "${NETWORK_NAME}" "${INTEG_TEST_CONTAINER_ID}"  #Dołącza kontener z aplikacją integ-test do networka, w którym są pozostałe aplikacje
 
+echo "LOGI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+docker logs $INTEG_TEST_CONTAINER_ID
 docker rm $(docker stop ${INTEG_TEST_CONTAINER_ID})  #usuwa kontener integ-test

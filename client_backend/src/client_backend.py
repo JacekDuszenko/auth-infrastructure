@@ -30,6 +30,11 @@ def verify(data: bytes) -> bytes:
                 raise timeout
 
 
+@app.route('/health_check', methods=['GET'])
+def health_check():
+    return "OK", 200
+
+
 @app.route('/login', methods=['POST'])
 @cross_origin()
 def login():
