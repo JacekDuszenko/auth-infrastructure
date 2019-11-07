@@ -15,11 +15,11 @@ docker login registry.gitlab.com --username $GITLAB_USERNAME
 
 docker image build -t ${INTEG_TEST_APP} integration-test/health-check  #buduje obraz aplikacji integ-test
 
-docker run -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
-INTEG_TEST_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${INTEG_TEST_APP} --format="{{.ID}}")  #Znajduje ID kontenera na podstawie nazwy image'a
-
 CLIENT_BACKEND_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${CLIENT_BACKEND_APP} --format="{{.ID}}") #pobiera id kontenera client_backend
 NETWORK_NAME=$(docker inspect "${CLIENT_BACKEND_CONTAINER_ID}" --format='{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}') #pobiera nazwę networka, w którym znajduje się client_backend
-docker network connect "${NETWORK_NAME}" "${INTEG_TEST_CONTAINER_ID}"  #Dołącza kontener z aplikacją integ-test do networka, w którym są pozostałe aplikacje
+
+echo 'Network name: ' ${NETWORK_NAME}
+docker run --network=${NETWORK_NAME} -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
+INTEG_TEST_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${INTEG_TEST_APP} --format="{{.ID}}")  #Znajduje ID kontenera na podstawie nazwy image'a
 
 docker rm $(docker stop ${INTEG_TEST_CONTAINER_ID})  #usuwa kontener integ-test
