@@ -22,4 +22,4 @@ echo 'Network name: ' ${NETWORK_NAME}
 docker run --network=${NETWORK_NAME} -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
 INTEG_TEST_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${INTEG_TEST_APP} --format="{{.ID}}")  #Znajduje ID kontenera na podstawie nazwy image'a
 
-# docker rm $(docker stop ${INTEG_TEST_CONTAINER_ID})  #usuwa kontener integ-test
+docker rm $(docker stop ${INTEG_TEST_CONTAINER_ID})  #usuwa kontener integ-test
