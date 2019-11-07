@@ -2,4 +2,5 @@ FROM python:3.8.0-slim
 WORKDIR /app
 COPY ./  .
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python", "integ-test.py"]
+ENTRYPOINT ["pytest", "integ-test.py"]
+

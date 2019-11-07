@@ -19,7 +19,7 @@ CLIENT_BACKEND_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${CLIENT_BACKEND
 NETWORK_NAME=$(docker inspect "${CLIENT_BACKEND_CONTAINER_ID}" --format='{{range $k,$v := .NetworkSettings.Networks}}{{$k}}{{end}}') #pobiera nazwę networka, w którym znajduje się client_backend
 
 echo 'Network name: ' ${NETWORK_NAME}
-docker run --network=${NETWORK_NAME} -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
+docker run --name "$INTEG_TEST_APP" --network=${NETWORK_NAME} -e PYTHONUNBUFFERED=1 -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
 INTEG_TEST_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${INTEG_TEST_APP} --format="{{.ID}}")  #Znajduje ID kontenera na podstawie nazwy image'a
-
+docker logs -f $INTEG_TEST_APP
 docker rm $(docker stop ${INTEG_TEST_CONTAINER_ID})  #usuwa kontener integ-test
