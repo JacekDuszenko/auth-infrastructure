@@ -1,9 +1,12 @@
-version: "3.3"
+version: "3.7"
+
 services:
+
   auth_service:
     image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/auth_service:latest
     expose:
     - "8443"
+
   client_backend:
     image: registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_backend:latest
     expose: 
@@ -15,5 +18,23 @@ services:
     ports:
     - "8080:80"
     depends_on:
-      - client_backend
+    - client_backend
+
+
+  ldap-host:
+    image: osixia/openldap:latest
+    environment:
+      - LDAP_ORGANISATION=${LDAP_ORGANISATION_NAME}
+      - LDAP_DOMAIN=${LDAP_DOMAIN}
+      - LDAP_ADMIN_PASSWORD=${LDAP_PASSWORD}
+
+  ldap-admin:
+    image: osixia/phpldapadmin:latest
+    ports:
+      - "6080:80"
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=ldap-host
+      - PHPLDAPADMIN_HTTPS=false
+    depends_on:
+      - ldap-host
 
