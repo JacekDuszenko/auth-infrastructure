@@ -1,7 +1,7 @@
 #!/bin/bash
 INTEG_TEST_APP='integ-test-app'
 CLIENT_BACKEND_APP='registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_backend:latest'
-
+GITLAB_USERNAME=albi23
 if [ -z "$(docker-compose ps -q client_backend)" ]; then    #Sprawdzenie czy działa kontener client_backend, czyli czy został odpalony docker-compose
     echo "Unable to perform integration test. Run docker-compose first."
     exit 1
