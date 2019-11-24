@@ -19,7 +19,7 @@ describe('Test actions', () => {
     }));
 
     it('should create an action and login failed', () => {
-        spyOn(httpClient, 'post').and.returnValue(of({authenticated: false}));
+        spyOn(httpClient, 'post').and.returnValue(of({authorisation: false}));
         store.dispatch(new UserAction('item-1', 'item-2'));
         store.selectOnce(state => state.user.errorLogin).subscribe((errorLogin: boolean) => {
             expect(errorLogin).toEqual(true);
@@ -27,7 +27,7 @@ describe('Test actions', () => {
     });
 
     it('should create an action and login succeeded', () => {
-        spyOn(httpClient, 'post').and.returnValue(of({authenticated: true}));
+        spyOn(httpClient, 'post').and.returnValue(of({authorisation: true}));
         store.dispatch(new UserAction('item-3', 'item-4'));
         store.selectOnce(state => state.user.errorLogin).subscribe((errorLogin: boolean) => {
             expect(errorLogin).toEqual(false);
