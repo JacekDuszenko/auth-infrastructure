@@ -1,7 +1,6 @@
 #!/bin/bash
 INTEG_TEST_APP='integ-test-app'
 CLIENT_BACKEND_APP='registry.gitlab.com/jacekduszenko/teamprogramming2k19/client_backend:latest'
-
 if [ -z "$(docker-compose ps -q client_backend)" ]; then    #Sprawdzenie czy działa kontener client_backend, czyli czy został odpalony docker-compose
     echo "Unable to perform integration test. Run docker-compose first."
     exit 1
@@ -22,4 +21,8 @@ echo 'Network name: ' ${NETWORK_NAME}
 docker run --name "$INTEG_TEST_APP" --network=${NETWORK_NAME} -e PYTHONUNBUFFERED=1 -d ${INTEG_TEST_APP} #uruchamia kontener integ-test
 INTEG_TEST_CONTAINER_ID=$(docker ps -a -q --filter ancestor=${INTEG_TEST_APP} --format="{{.ID}}")  #Znajduje ID kontenera na podstawie nazwy image'a
 docker logs -f $INTEG_TEST_APP
+echo "********** Test LDAP Connection ****************"
+LDAP_CONTAINER_ID=$(docker ps -a -q --filter name="teamprogramming2k19_ldap-host_1" --format="{{.ID}}")
+IP_LDAP_CONTAINER_ID=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${LDAP_COINTAINER_ID})
+nc -v -w 2 ${IP_LDAP_CONTAINER_ID} 636 # czeka przez 2s na połączenie z ldapem na porcie 636, wypisuje wiadomośc o połączeniu
 docker rm $(docker stop ${INTEG_TEST_CONTAINER_ID})  #usuwa kontener integ-test
