@@ -31,7 +31,7 @@ export class UserState {
                 try {
                     const resp = response as any;
                     console.log(resp);
-                    if (resp.authenticated === true) {
+                    if (resp.authorisation === true) { 
                         this.authorizeUser(ctx);
                     } else {
                         this.invalidateUser(ctx);
