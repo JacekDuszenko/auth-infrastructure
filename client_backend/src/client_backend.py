@@ -15,6 +15,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
 def verify(data: bytes) -> bytes:
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     context.load_verify_locations(CA_PATH)
@@ -56,6 +57,7 @@ def login():
     except socket.timeout:
         log_resp(200)
         return response, 504
+
 
 def log_resp(rsp_code):
     print('response code is: ', rsp_code)
