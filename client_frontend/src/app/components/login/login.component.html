@@ -1,0 +1,15 @@
+<mat-card class="example-card">
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+        <formly-form [fields]="loginFields" [form]="loginForm">
+            <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">
+                Zaloguj
+            </button>
+        </formly-form>
+    </form>
+    <div *ngIf="errorLogin$ | async">
+        <span>Nie zalogowany</span>
+    </div>
+    <div *ngIf="(errorLogin$ | async) == false">
+        <span>Zalogowany</span>
+    </div>
+</mat-card>
