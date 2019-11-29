@@ -7,19 +7,19 @@ import subprocess
 from ldap3 import Server, Connection, ALL, Tls, KERBEROS
 
 import threading
-from config import(
+from config import (
     SERVER_DIRECTORY,
     PORT_NUMBER,
     HOSTNAME,
     CERT_PATH,
     KEY_PATH,
     HEALTH_CHECK_PORT,
-    HEALTH_CHECK_BUFSIZE
+    HEALTH_CHECK_BUFSIZE,
 )
 from flask import Flask
 
 app = Flask(__name__)
-app.config['CORS_HEADERS'] = 'Content-Type'
+app.config["CORS_HEADERS"] = "Content-Type"
 
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -92,33 +92,17 @@ def listen_client():
                 print("Socket connection failed! OSError!")
 
 
-def listen_health_check():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(('localhost', HEALTH_CHECK_PORT))
-        s.listen(1)
-        c, addr = s.accept()
-        while True:
-            c.recv(HEALTH_CHECK_BUFSIZE)
-            c.send(b"HTTP/1.1 200 OK\n Content-Type: text/html\n \n")
-
-
-@app.route('/health_check', methods=['GET'])
+@app.route("/health_check", methods=["GET"])
 def health_check():
     return "OK", 200
 
 
 def run_hc():
-    app.run(port=1313, host='0.0.0.0')
+    app.run(port=1313, host="0.0.0.0")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     Thread(target=listen_health_check()).start()
     auth = threading.Thread(target=listen_client)
-    print("Auth..")
     auth.start()
-    print("..Started")
-    print("health..")
     hc = threading.Thread(target=run_hc)
-    print("hc..")
     hc.start()
-    print("..Started!")
-
