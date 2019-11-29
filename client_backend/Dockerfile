@@ -3,4 +3,4 @@ WORKDIR /app
 COPY src  .
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python", "client_backend.py"]
+ENTRYPOINT ["python", "-u", "client_backend.py"]

@@ -4,4 +4,4 @@ COPY src  ./src
 COPY certificates ./certificates
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-ENTRYPOINT ["python", "src/auth_server.py"]
+ENTRYPOINT ["python", "-u", "src/auth_server.py"]

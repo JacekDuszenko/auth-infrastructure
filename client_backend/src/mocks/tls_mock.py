@@ -1,6 +1,5 @@
 from unittest.mock import MagicMock
 
-# remove when server will be up
 SERV_TEMP_RESPONSE = b'{"authorisation": true}'
 
 

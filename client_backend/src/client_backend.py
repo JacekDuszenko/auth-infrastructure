@@ -1,11 +1,10 @@
 import json
+import socket
+import ssl
 
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from mocks.tls_mock import ssl, socket, SERV_TEMP_RESPONSE
 
-CA_PATH = 0xDEADBEEF
-# need to figure it out
 MY_PORT = 1313
 AUTH_SERVICE_PORT = 8443
 AUTH_SERVICE_HOSTNAME = "auth_service"
@@ -17,20 +16,17 @@ app.config["CORS_HEADERS"] = "Content-Type"
 
 
 def verify(data: bytes) -> bytes:
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    context.load_verify_locations(CA_PATH)
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        # 5 seconds
-        sock.settimeout(5)
-        with context.wrap_socket(
-            sock, server_side=False, do_handshake_on_connect=True
-        ) as ssock:
-            try:
-                ssock.connect((AUTH_SERVICE_HOSTNAME, AUTH_SERVICE_PORT))
-                ssock.sendall(data)
-                return SERV_TEMP_RESPONSE
-            except socket.timeout as timeout:
-                raise timeout
+    context = ssl._create_unverified_context()
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sslSock = context.wrap_socket(
+        sock, server_side=False, server_hostname=AUTH_SERVICE_HOSTNAME
+    )
+    sslSock.connect((AUTH_SERVICE_HOSTNAME, AUTH_SERVICE_PORT))
+    sslSock.sendall(data)
+    resp = sslSock.recv(1024)
+    sslSock.close()
+    return resp
 
 
 @app.route("/health_check", methods=["GET"])
@@ -41,16 +37,15 @@ def health_check():
 @app.route("/login", methods=["POST"])
 @cross_origin()
 def login():
-    content = request.json
+    content = request.get_json(force=True)
     content_str = str(content)
-    print("data received is:" + content_str)
+    print("Data received from client is :" + content_str)
     try:
         byteresponse = verify(str.encode(content_str))
         response = byteresponse.decode("utf-8")
-        print("response is: " + str(response))
-        result = json.loads(response).get("authorisation")
-        print(result)
-        if result == True:
+        print("Response from auth service is: " + str(response))
+        result = json.loads(response).get("authenticated")
+        if result == True or result == 'true':
             log_resp(200)
             return response, 200
         else:
@@ -62,7 +57,11 @@ def login():
 
 
 def log_resp(rsp_code):
-    print("response code is: ", rsp_code)
+    print("Response code is: ", rsp_code)
+    if rsp_code == 200:
+        print("Successfully authorized user")
+    else:
+        print("Failed authorizing user")
 
 
 if __name__ == "__main__":

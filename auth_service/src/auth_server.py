@@ -1,55 +1,33 @@
+import json
 import socket
 import ssl
-import json
-import docker
-import subprocess
-
-from ldap3 import Server, Connection, ALL, Tls, KERBEROS
-
 import threading
+
 from config import (
-    SERVER_DIRECTORY,
     PORT_NUMBER,
     HOSTNAME,
     CERT_PATH,
-    KEY_PATH,
-    HEALTH_CHECK_PORT,
-    HEALTH_CHECK_BUFSIZE,
+    KEY_PATH
 )
 from flask import Flask
+from ldap_con import authorize
 
 app = Flask(__name__)
 app.config["CORS_HEADERS"] = "Content-Type"
 
-
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-#context.verify_mode = ssl.CERT_REQUIRED
 context.load_cert_chain(CERT_PATH, KEY_PATH)
 
 
-def ldap_auth():
-    
-    cmd = ['docker', 'inspect','--format=\'{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}\'', 'teamprogramming2k19_ldap-host_1']
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    o, e = proc.communicate()
-    IP=o.decode('ascii').replace("'", "")
-  
+def ldap_auth(email, password):
+    is_authorized = authorize(email, password)
+    if is_authorized:
+        print('\nSuccesfully authorized user with email {} and password {} in ldap\n'.format(email, password))
+    else:
+        print('\nFailed authorizing user with email {} and password {} in ldap\n'.format(email, password))
 
-    #binddn = "cn=admin,dc=group-project,dc=com"
-    #pw = "admin"
+    return is_authorized
 
-   # server = Server(host=IP, get_info=ALL, tls=Tls(ca_certs_file='default-ca.pem',local_certificate_file='ldap.crt', local_private_key_file='51787427__127.0.0.1_.cert', validate=ssl.CERT_REQUIRED))
-    server = Server(host=IP, get_info=ALL)
-    conn = Connection(server)
-   # conn.open()
-   # conn.start_tls()
-    conn.bind()
-   # print(conn)
-    if conn.bind():
-        print('\nSuccesfully connected to ldap \n',server.info)
-        conn.unbind()
-        return True
-    return False
 
 def listen_client():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
@@ -63,22 +41,22 @@ def listen_client():
 
                 try:
                     sslSock = context.wrap_socket(clientSocket, server_side=True)
+                    sslSock.verify_mode = ssl.CERT_NONE
                     print("TLS connection has been established!")
 
                     clientRequest = sslSock.recv(1024)
-                    jsonRequest = json.loads(clientRequest.decode("utf-8"))
+                    jsonRequest = json.loads(clientRequest.decode("utf-8").replace("\'", "\""))
                     email = jsonRequest["email"]
                     password = jsonRequest["password"]
 
-         
-                    if ldap_auth():
-                        response = json.dumps({"authenticated": "true"})					
+                    if ldap_auth(email, password):
+                        response = json.dumps({"authenticated": "true"})
                     else:
                         response = json.dumps({"authenticated": "false"})
 
                     sslSock.sendall(str.encode(response))
 
-                except ssl.SSLError as e :
+                except ssl.SSLError as e:
                     print("TLS Handshake failed!")
                     print(e)
                     continue
@@ -100,8 +78,8 @@ def health_check():
 def run_hc():
     app.run(port=1313, host="0.0.0.0")
 
+
 if __name__ == "__main__":
-    Thread(target=listen_health_check()).start()
     auth = threading.Thread(target=listen_client)
     auth.start()
     hc = threading.Thread(target=run_hc)

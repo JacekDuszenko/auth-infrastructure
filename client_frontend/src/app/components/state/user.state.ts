@@ -1,6 +1,5 @@
 import {State, Action, StateContext} from '@ngxs/store';
-
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 export class UserAction {
     static readonly type = '[User] Login';
@@ -26,12 +25,13 @@ export class UserState {
     @Action(UserAction)
     add(ctx: StateContext<UserStateModel>, {email, password}: UserAction) {
         console.log(email, password);
-        this.httpClient.post('login', {email: email, password: password})
+        const options = { headers: new HttpHeaders().set('Content-Type', 'application/json') };
+        this.httpClient.post('login', {email: email, password: password}, options)
             .subscribe((response) => {
                 try {
                     const resp = response as any;
                     console.log(resp);
-                    if (resp.authorisation === true) { 
+                    if (resp.authenticated === true) {
                         this.authorizeUser(ctx);
                     } else {
                         this.invalidateUser(ctx);
