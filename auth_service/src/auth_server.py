@@ -1,26 +1,30 @@
 import socket
 import ssl
-from pathlib import Path
-import os
 import json
 import docker
 import subprocess
 
 from ldap3 import Server, Connection, ALL, Tls, KERBEROS
 
+import threading
+from config import (
+    SERVER_DIRECTORY,
+    PORT_NUMBER,
+    HOSTNAME,
+    CERT_PATH,
+    KEY_PATH,
+    HEALTH_CHECK_PORT,
+    HEALTH_CHECK_BUFSIZE,
+)
+from flask import Flask
 
-SERVER_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
-PORT_NUMBER = 8443
-HOSTNAME = '127.0.0.1'
-CERT_PATH = Path(f"{SERVER_DIRECTORY}/../certificates/51787427__127.0.0.1_.cert")
-KEY_PATH = Path(f"{SERVER_DIRECTORY}/../certificates/51787427__127.0.0.1_.key")
+app = Flask(__name__)
+app.config["CORS_HEADERS"] = "Content-Type"
 
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 #context.verify_mode = ssl.CERT_REQUIRED
 context.load_cert_chain(CERT_PATH, KEY_PATH)
-
-
 
 
 def ldap_auth():
@@ -46,15 +50,13 @@ def ldap_auth():
         conn.unbind()
         return True
     return False
-    
 
-def run_server():
+def listen_client():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         sock.bind((HOSTNAME, PORT_NUMBER))
         sock.listen(5)
         while True:
             print("Waiting for client connection...")
-
             try:
                 clientSocket, address = sock.accept()
                 print("Socket connection has been established!")
@@ -90,5 +92,17 @@ def run_server():
                 print("Socket connection failed! OSError!")
 
 
-if __name__ == '__main__':
-    run_server()
+@app.route("/health_check", methods=["GET"])
+def health_check():
+    return "OK", 200
+
+
+def run_hc():
+    app.run(port=1313, host="0.0.0.0")
+
+if __name__ == "__main__":
+    Thread(target=listen_health_check()).start()
+    auth = threading.Thread(target=listen_client)
+    auth.start()
+    hc = threading.Thread(target=run_hc)
+    hc.start()
